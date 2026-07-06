@@ -806,6 +806,12 @@ select:focus {
   gap: 4px;
   font-size: 0.85rem;
 }
+.sent-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
 .sent-form {
   display: flex;
   gap: 8px;

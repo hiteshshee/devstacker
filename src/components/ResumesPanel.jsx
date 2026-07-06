@@ -117,6 +117,15 @@ function ResumeItem({ resume: r, open, onToggle, onDelete, onChanged, onError })
     }
   }
 
+  async function removeSent(entryId) {
+    try {
+      await api.deleteSent(r._id, entryId);
+      onChanged();
+    } catch (err) {
+      onError(err.message);
+    }
+  }
+
   return (
     <div className="resume-row">
       <div className="resume-head">
@@ -155,8 +164,17 @@ function ResumeItem({ resume: r, open, onToggle, onDelete, onChanged, onError })
             <ul className="sent-list">
               {r.sentLog.map((s) => (
                 <li key={s._id}>
-                  <strong>{s.company}</strong>
-                  <span className="muted"> · {shortDate(s.date)}</span>
+                  <span>
+                    <strong>{s.company}</strong>
+                    <span className="muted"> · {shortDate(s.date)}</span>
+                  </span>
+                  <button
+                    className="icon-btn"
+                    onClick={() => removeSent(s._id)}
+                    title="Remove"
+                  >
+                    ✕
+                  </button>
                 </li>
               ))}
             </ul>

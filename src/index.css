@@ -812,6 +812,26 @@ select:focus {
   align-items: center;
   gap: 8px;
 }
+.sent-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.icon-btn.edit:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.sent-edit {
+  gap: 6px;
+}
+.sent-edit input {
+  padding: 6px 9px;
+  font-size: 0.82rem;
+}
+.sent-edit input:first-child {
+  flex: 1;
+  min-width: 100px;
+}
 .sent-form {
   display: flex;
   gap: 8px;

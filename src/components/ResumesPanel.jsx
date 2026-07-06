@@ -100,6 +100,9 @@ function ResumeItem({ resume: r, open, onToggle, onDelete, onChanged, onError })
   const [company, setCompany] = useState('');
   const [date, setDate] = useState('');
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editCompany, setEditCompany] = useState('');
+  const [editDate, setEditDate] = useState('');
 
   async function addSent(e) {
     e.preventDefault();
@@ -120,6 +123,26 @@ function ResumeItem({ resume: r, open, onToggle, onDelete, onChanged, onError })
   async function removeSent(entryId) {
     try {
       await api.deleteSent(r._id, entryId);
+      onChanged();
+    } catch (err) {
+      onError(err.message);
+    }
+  }
+
+  function startEdit(s) {
+    setEditingId(s._id);
+    setEditCompany(s.company);
+    setEditDate(s.date ? new Date(s.date).toISOString().slice(0, 10) : '');
+  }
+
+  async function saveEdit(entryId) {
+    if (!editCompany.trim()) return;
+    try {
+      await api.updateSent(r._id, entryId, {
+        company: editCompany.trim(),
+        date: editDate || undefined,
+      });
+      setEditingId(null);
       onChanged();
     } catch (err) {
       onError(err.message);
@@ -162,21 +185,59 @@ function ResumeItem({ resume: r, open, onToggle, onDelete, onChanged, onError })
         <div className="sent-panel">
           {r.sentLog.length > 0 && (
             <ul className="sent-list">
-              {r.sentLog.map((s) => (
-                <li key={s._id}>
-                  <span>
-                    <strong>{s.company}</strong>
-                    <span className="muted"> · {shortDate(s.date)}</span>
-                  </span>
-                  <button
-                    className="icon-btn"
-                    onClick={() => removeSent(s._id)}
-                    title="Remove"
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
+              {r.sentLog.map((s) =>
+                editingId === s._id ? (
+                  <li key={s._id} className="sent-edit">
+                    <input
+                      value={editCompany}
+                      onChange={(e) => setEditCompany(e.target.value)}
+                      placeholder="Company"
+                    />
+                    <input
+                      type="date"
+                      value={editDate}
+                      onChange={(e) => setEditDate(e.target.value)}
+                    />
+                    <button
+                      className="ghost-btn sm"
+                      onClick={() => saveEdit(s._id)}
+                      disabled={!editCompany.trim()}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="icon-btn"
+                      onClick={() => setEditingId(null)}
+                      title="Cancel"
+                    >
+                      ✕
+                    </button>
+                  </li>
+                ) : (
+                  <li key={s._id}>
+                    <span>
+                      <strong>{s.company}</strong>
+                      <span className="muted"> · {shortDate(s.date)}</span>
+                    </span>
+                    <span className="sent-actions">
+                      <button
+                        className="icon-btn edit"
+                        onClick={() => startEdit(s)}
+                        title="Edit"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        className="icon-btn"
+                        onClick={() => removeSent(s._id)}
+                        title="Remove"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  </li>
+                )
+              )}
             </ul>
           )}
           <form className="sent-form" onSubmit={addSent}>

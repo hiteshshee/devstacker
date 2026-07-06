@@ -93,6 +93,32 @@ router.post('/:id/sent', requireAuth, async (req, res) => {
   res.json({ resume });
 });
 
+// Edit a single "sent to company" entry (company name and/or date).
+router.patch('/:id/sent/:entryId', requireAuth, async (req, res) => {
+  const { company, date } = req.body || {};
+  const set = {};
+  if (company !== undefined) {
+    if (!company.trim())
+      return res.status(400).json({ error: 'Company cannot be empty' });
+    set['sentLog.$.company'] = company.trim();
+  }
+  if (date !== undefined) set['sentLog.$.date'] = date ? new Date(date) : new Date();
+  if (!Object.keys(set).length) {
+    return res.status(400).json({ error: 'Nothing to update' });
+  }
+  const resume = await Resume.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      owner: req.session.login,
+      'sentLog._id': req.params.entryId,
+    },
+    { $set: set },
+    { new: true, projection: { data: 0 } }
+  );
+  if (!resume) return res.status(404).json({ error: 'Entry not found' });
+  res.json({ resume });
+});
+
 // Remove a single "sent to company" entry from a resume.
 router.delete('/:id/sent/:entryId', requireAuth, async (req, res) => {
   const resume = await Resume.findOneAndUpdate(

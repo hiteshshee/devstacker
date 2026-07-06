@@ -75,4 +75,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+  deleteSent: (id, entryId) =>
+    request(`/api/resumes/${id}/sent/${entryId}`, { method: 'DELETE' }),
 };

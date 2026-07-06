@@ -93,6 +93,17 @@ router.post('/:id/sent', requireAuth, async (req, res) => {
   res.json({ resume });
 });
 
+// Remove a single "sent to company" entry from a resume.
+router.delete('/:id/sent/:entryId', requireAuth, async (req, res) => {
+  const resume = await Resume.findOneAndUpdate(
+    { _id: req.params.id, owner: req.session.login },
+    { $pull: { sentLog: { _id: req.params.entryId } } },
+    { new: true, projection: { data: 0 } }
+  );
+  if (!resume) return res.status(404).json({ error: 'Resume not found' });
+  res.json({ resume });
+});
+
 // Delete a resume the user owns.
 router.delete('/:id', requireAuth, async (req, res) => {
   const result = await Resume.deleteOne({

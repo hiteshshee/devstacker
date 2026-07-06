@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+.env.local
+.git
+*.log
+Product Requirements Document.pdf
+PRD-v2-Supplement.md
